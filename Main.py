@@ -8,7 +8,8 @@ def auth_mendeley(ID, SECRET):
     auth = mendeley.start_authorization_code_flow()
     return auth
 
-
+st.set_page_config("Main")
+st.sidebar.markdown("A")
 "# Mendeley API"
 
 # Authorization
