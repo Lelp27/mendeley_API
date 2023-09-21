@@ -1,27 +1,27 @@
 import json
 # import streamlit as st
 from mendeley import Mendeley
-import webbrowser
-import os
-import streamlit as st
-#os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 
-with open('config.json') as f:
+with open('./data/db.json') as f:
     config = json.load(f)
 
 REDIRECT_URI = 'http://localhost:5000/oauth'
 
-mendeley = Mendeley(config['clientID'], config['clientSecret'], redirect_uri=REDIRECT_URI)
+mendeley = Mendeley(config['clientID'], config['clientSECRET'], redirect_uri=REDIRECT_URI)
 auth = mendeley.start_authorization_code_flow()
-# state = auth.state
+state = auth.state
 login_url=auth.get_login_url()
 login_url
-webbrowser.open(login_url)
+del auth
 
 # st.button("Contact us!", on_click=open_redirection_url, kwargs={'url':REDIRECT_URI})
+mendeley2 = Mendeley(config['clientID'], redirect_uri=REDIRECT_URI)
+auth2 = mendeley2.start_authorization_code_flow(state=state)
+test = ['http://localhost:5000/oauth?code=TaLbsEt0YUBbNVFQ75SWRT5U7OI&state=BZO5PANIX01Q05TQSJ8J02F47JMQOF']
 
-help(auth.authenticate)
-session = auth.authenticate('http://localhost:5000/oauth?code=hUSE9h1J832ktemQwTt35PdPBmo&state=G1CVF37BTZ8P61UPOAT0N5F4XNNACS')
+# auth2.token_url = auth2.mendeley.host + '/oauth/token'
+session = auth2.authenticate(f'{test[0]}')
+session = auth.authenticate('http://localhost:5000/oauth/?code=zWEJoiTOgR7PSxOk0aZbiLKrv7k&state=GXQ94BKT74C3QXJJQAIZ4OPOPSBYIE')
 session = auth.authenticate(REDIRECT_URI)
 session.documents
 groups = {}
