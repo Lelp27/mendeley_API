@@ -1,9 +1,16 @@
 import json
-# import streamlit as st
 from mendeley import Mendeley
+import inspect
+
 
 with open('./data/db.json') as f:
     config = json.load(f)
+
+def get_documents_from_folder(session, folder_name):
+    documents = session.get(url=f'https://api.mendeley.com/folders/{folders[folder_name]}/documents').json()
+    
+
+
 
 REDIRECT_URI = 'http://localhost:5000/oauth'
 
@@ -12,24 +19,18 @@ auth = mendeley.start_authorization_code_flow()
 state = auth.state
 login_url=auth.get_login_url()
 login_url
-del auth
 
-# st.button("Contact us!", on_click=open_redirection_url, kwargs={'url':REDIRECT_URI})
-mendeley2 = Mendeley(config['clientID'], redirect_uri=REDIRECT_URI)
-auth2 = mendeley2.start_authorization_code_flow(state=state)
-test = ['http://localhost:5000/oauth?code=TaLbsEt0YUBbNVFQ75SWRT5U7OI&state=BZO5PANIX01Q05TQSJ8J02F47JMQOF']
+session = auth.authenticate('http://localhost:5000/oauth?code=yAToCMn9bfOHeDMqT4qOTUF7i1I&state=JQPSDVX4YJA537FJXQV16UTYFIZ90Z')
 
-# auth2.token_url = auth2.mendeley.host + '/oauth/token'
-session = auth2.authenticate(f'{test[0]}')
-session = auth.authenticate('http://localhost:5000/oauth/?code=zWEJoiTOgR7PSxOk0aZbiLKrv7k&state=GXQ94BKT74C3QXJJQAIZ4OPOPSBYIE')
-session = auth.authenticate(REDIRECT_URI)
-session.documents
-groups = {}
-for i in session.groups.list():
-    groups[i.name] = i.id
+folders = {}
+for i in session.get(url='https://api.mendeley.com/folders').json():
+    folders[i['name']] = i['id']
+documents = session.get(url=f'https://api.mendeley.com/folders/{folders["읽을 것"]}/documents').json()
 
-f"""
-# Mendeley API
-<a>href={login_url} target="_blank"</a>
-"""
+files = session.get(url='https://api.mendeley.com/files').json()
+files_id = {}
+for i in files:
+    files_id[i["document_id"]] = files_id[i["id"]]
 
+for i in documents:
+    files_id[documents["id"]]

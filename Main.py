@@ -1,7 +1,9 @@
 import inspect
 import streamlit as st
-from mendeley import Mendeley
 from streamlit_cookies_manager import EncryptedCookieManager
+from mendeley import Mendeley
+import time
+
 
 # Header
 cookies = EncryptedCookieManager(password='insaneSBL', expiration_seconds=60)
@@ -35,31 +37,31 @@ if not st.experimental_get_query_params():
             mendeley = Mendeley(ID, SECRET, redirect_uri=REDIRECT_URI)
             auth = mendeley.start_authorization_code_flow()
             login_url = auth.get_login_url()
-            st.markdown(f'<a href="{login_url}" target="_self"> Authroize </a>', unsafe_allow_html=True)
+            
             cookies['clientID'] = ID
             cookies['clientSECRET'] = SECRET
             cookies['auth_state'] = auth.state
             cookies.save()
+        
+            st.markdown(f'<a href="{login_url}" target="_self"> Authroize </a>', unsafe_allow_html=True)
+            expirate_time = 60
+            progress_text = "Authorization will only work in {}s"
+            author_progress = st.progress(expirate_time, progress_text.format(expirate_time))
+            for i in range(60):
+                time.sleep(1)
+                author_progress.progress(expirate_time - i, text=progress_text.format(expirate_time-i))
 
 else: # After authorize
     st.session_state['token'] = st.experimental_get_query_params()
     st.session_state['clientID'] = cookies['clientID']
     st.session_state['clientSECRET'] = cookies['clientSECRET']
     st.session_state['auth_state'] = cookies['auth_state']
-    st.write(st.session_state['auth_state'])
+
     mendeley = Mendeley(st.session_state['clientID'], st.session_state['clientSECRET'], redirect_uri=REDIRECT_URI)
-    st.write(st.session_state['clientID'])
-    auth2 = mendeley.start_authorization_code_flow(state=st.session_state['auth_state'])
+    auth = mendeley.start_authorization_code_flow(state=st.session_state['auth_state'])
     test = f'{REDIRECT_URI}/?code={st.session_state["token"]["code"][0]}&state={st.session_state["token"]["state"][0]}'
-    st.write(test)
-    #try:
-    session = auth2.authenticate(
+
+    session = auth.authenticate(
     f'{REDIRECT_URI}?code={st.session_state["token"]["code"][0]}&state={st.session_state["token"]["state"][0]}'
     )
-    #except Exception as e:
-    #    st.write(cookies)
-   #     st.error(e)
-   #     breakpoint()
-   #     st.stop()
     st.success("Success get token")
-
