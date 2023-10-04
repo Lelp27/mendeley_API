@@ -95,4 +95,5 @@ else: # After authorize
     files = {i["document_id"]:i["id"] for i in files}
     
     for doc_id in documents.keys():
-        download_file(session, files[doc_id])
+        file_id = files[doc_id]
+        download_file(session, file_id)
